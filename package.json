@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "next dev",
-  "build": "next build",
-  "start": "next start"
-},
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cbask28025/manifesto_puzzles_dashobard.git"
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/cbask28025/manifesto_puzzles_dashobard#readme",
   "dependencies": {
+    "lucide-react": "^1.8.0",
     "next": "^16.2.4",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
