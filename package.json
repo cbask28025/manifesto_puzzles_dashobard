@@ -1,0 +1,28 @@
+{
+  "name": "manifesto_puzzles_dashobard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cbask28025/manifesto_puzzles_dashobard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/cbask28025/manifesto_puzzles_dashobard/issues"
+  },
+  "homepage": "https://github.com/cbask28025/manifesto_puzzles_dashobard#readme",
+  "dependencies": {
+    "next": "^16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  }
+}
