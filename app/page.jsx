@@ -148,8 +148,6 @@ const CATEGORY_COLORS = {
   Sports: "#3B82F6",
 };
 
-// ── Components ─────────────────────────────────────────────────────
-
 function StatusBadge({ status }) {
   const cfg = STATUS_CONFIG[status];
   const Icon = cfg.icon;
@@ -225,9 +223,7 @@ function ImageSlot({ src, label, size = 140 }) {
 }
 
 function OrderCard({ order, onSelect, isSelected }) {
-  const cfg = STATUS_CONFIG[order.status];
   const timeAgo = getTimeAgo(order.createdAt);
-
   return (
     <div
       onClick={() => onSelect(order.id)}
@@ -251,39 +247,25 @@ function OrderCard({ order, onSelect, isSelected }) {
         if (!isSelected) e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)";
       }}
     >
-      {/* Top row */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
         <div>
-          <span style={{
-            fontFamily: "'JetBrains Mono', monospace", fontSize: 12,
-            color: "rgba(255,255,255,0.4)", fontWeight: 500,
-          }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
             {order.id}
           </span>
-          <div style={{
-            fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.9)",
-            fontFamily: "'Outfit', sans-serif", marginTop: 2,
-          }}>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "'Outfit', sans-serif", marginTop: 2 }}>
             {order.name}
           </div>
         </div>
         <StatusBadge status={order.status} />
       </div>
-
-      {/* Meta row */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
         <CategoryTag category={order.category} />
         {order.artStyle && (
-          <span style={{
-            fontSize: 10, color: "rgba(255,255,255,0.3)",
-            fontFamily: "'JetBrains Mono', monospace",
-          }}>
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "'JetBrains Mono', monospace" }}>
             {order.artStyle}
           </span>
         )}
       </div>
-
-      {/* Image strip */}
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <ImageSlot src={order.referencePhoto} label="Reference" size={64} />
         <ArrowRight size={12} style={{ opacity: 0.15, flexShrink: 0 }} />
@@ -291,23 +273,12 @@ function OrderCard({ order, onSelect, isSelected }) {
         <ArrowRight size={12} style={{ opacity: 0.15, flexShrink: 0 }} />
         <ImageSlot src={order.artApplied} label="Final" size={64} />
       </div>
-
-      {/* Footer */}
-      <div style={{
-        marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center",
-      }}>
-        <span style={{
-          fontSize: 10, color: "rgba(255,255,255,0.2)",
-          fontFamily: "'JetBrains Mono', monospace",
-        }}>
+      <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace" }}>
           {timeAgo}
         </span>
         {order.comments.length > 0 && (
-          <span style={{
-            display: "inline-flex", alignItems: "center", gap: 4,
-            fontSize: 10, color: "rgba(255,255,255,0.3)",
-            fontFamily: "'JetBrains Mono', monospace",
-          }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "'JetBrains Mono', monospace" }}>
             <MessageSquare size={11} /> {order.comments.length}
           </span>
         )}
@@ -322,205 +293,85 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
   const [showTraits, setShowTraits] = useState(false);
 
   if (!order) return (
-    <div style={{
-      flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-      color: "rgba(255,255,255,0.15)", fontFamily: "'Outfit', sans-serif",
-      fontSize: 15,
-    }}>
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.15)", fontFamily: "'Outfit', sans-serif", fontSize: 15 }}>
       Select an order to review
     </div>
   );
 
   const canApprove = order.status === "review" || order.status === "revision";
-  const canRerun = order.status === "review" || order.status === "revision";
 
   return (
-    <div style={{
-      flex: 1, overflowY: "auto", padding: "28px 32px",
-      background: "rgba(255,255,255,0.01)",
-      borderLeft: "1px solid rgba(255,255,255,0.05)",
-    }}>
-      {/* Header */}
+    <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px", background: "rgba(255,255,255,0.01)", borderLeft: "1px solid rgba(255,255,255,0.05)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-            <span style={{
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 13,
-              color: "rgba(255,255,255,0.4)",
-            }}>
-              {order.id}
-            </span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{order.id}</span>
             <StatusBadge status={order.status} />
           </div>
-          <h2 style={{
-            fontFamily: "'Outfit', sans-serif", fontSize: 26, fontWeight: 700,
-            color: "rgba(255,255,255,0.95)", margin: 0, letterSpacing: "-0.02em",
-          }}>
+          <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 26, fontWeight: 700, color: "rgba(255,255,255,0.95)", margin: 0, letterSpacing: "-0.02em" }}>
             {order.name}
           </h2>
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <CategoryTag category={order.category} />
-            {order.artStyle && (
-              <span style={{
-                fontSize: 11, color: "rgba(255,255,255,0.35)",
-                fontFamily: "'JetBrains Mono', monospace",
-              }}>
-                {order.artStyle}
-              </span>
-            )}
-            <span style={{
-              fontSize: 11, color: "rgba(255,255,255,0.2)",
-              fontFamily: "'JetBrains Mono', monospace",
-            }}>
-              {order.orientation}
-            </span>
+            {order.artStyle && <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "'JetBrains Mono', monospace" }}>{order.artStyle}</span>}
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace" }}>{order.orientation}</span>
           </div>
         </div>
-        <button
-          onClick={onClose}
-          style={{
-            background: "rgba(255,255,255,0.05)", border: "none",
-            borderRadius: 8, padding: 8, cursor: "pointer", color: "rgba(255,255,255,0.4)",
-          }}
-        >
+        <button onClick={onClose} style={{ background: "rgba(255,255,255,0.05)", border: "none", borderRadius: 8, padding: 8, cursor: "pointer", color: "rgba(255,255,255,0.4)" }}>
           <X size={16} />
         </button>
       </div>
 
-      {/* Awaiting form state */}
       {!order.formSubmitted && (
-        <div style={{
-          background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)",
-          borderRadius: 12, padding: 20, marginBottom: 24,
-          display: "flex", alignItems: "center", gap: 14,
-        }}>
+        <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 12, padding: 20, marginBottom: 24, display: "flex", alignItems: "center", gap: 14 }}>
           <Clock size={22} style={{ color: "#F59E0B", flexShrink: 0 }} />
           <div>
-            <div style={{
-              fontFamily: "'Outfit', sans-serif", fontWeight: 600,
-              color: "#F59E0B", fontSize: 14, marginBottom: 4,
-            }}>
-              Tally Form Not Submitted
-            </div>
-            <div style={{
-              fontSize: 12, color: "rgba(255,255,255,0.4)",
-              fontFamily: "'JetBrains Mono', monospace",
-            }}>
-              Customer purchased but hasn't submitted their customization form yet.
-            </div>
-            <button style={{
-              marginTop: 10, background: "rgba(245,158,11,0.15)",
-              border: "1px solid rgba(245,158,11,0.3)", borderRadius: 8,
-              padding: "6px 14px", color: "#F59E0B", fontSize: 11,
-              fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
-              cursor: "pointer", letterSpacing: "0.03em",
-            }}>
+            <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, color: "#F59E0B", fontSize: 14, marginBottom: 4 }}>Tally Form Not Submitted</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'JetBrains Mono', monospace" }}>Customer purchased but hasn&apos;t submitted their customization form yet.</div>
+            <button style={{ marginTop: 10, background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 8, padding: "6px 14px", color: "#F59E0B", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, cursor: "pointer", letterSpacing: "0.03em" }}>
               SEND FORM REMINDER
             </button>
           </div>
         </div>
       )}
 
-      {/* Image comparison */}
       {order.formSubmitted && (
         <div style={{ marginBottom: 28 }}>
-          <div style={{
-            fontSize: 10, color: "rgba(255,255,255,0.25)",
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: "0.1em", textTransform: "uppercase",
-            marginBottom: 14,
-          }}>
-            IMAGE PIPELINE
-          </div>
-          <div style={{
-            display: "flex", gap: 16, alignItems: "flex-start",
-            flexWrap: "wrap",
-          }}>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>IMAGE PIPELINE</div>
+          <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
             <ImageSlot src={order.referencePhoto} label="Customer Reference" size={180} />
-            <div style={{ display: "flex", alignItems: "center", paddingTop: 75 }}>
-              <ArrowRight size={16} style={{ opacity: 0.2 }} />
-            </div>
+            <div style={{ display: "flex", alignItems: "center", paddingTop: 75 }}><ArrowRight size={16} style={{ opacity: 0.2 }} /></div>
             <ImageSlot src={order.aiGenerated} label="AI Recreation" size={180} />
-            <div style={{ display: "flex", alignItems: "center", paddingTop: 75 }}>
-              <ArrowRight size={16} style={{ opacity: 0.2 }} />
-            </div>
+            <div style={{ display: "flex", alignItems: "center", paddingTop: 75 }}><ArrowRight size={16} style={{ opacity: 0.2 }} /></div>
             <ImageSlot src={order.artApplied} label="Art Style Applied" size={180} />
           </div>
         </div>
       )}
 
-      {/* Order details */}
       {order.formSubmitted && (
-        <div style={{
-          background: "rgba(255,255,255,0.02)", borderRadius: 12,
-          border: "1px solid rgba(255,255,255,0.05)", padding: 18,
-          marginBottom: 20,
-        }}>
-          <div style={{
-            fontSize: 10, color: "rgba(255,255,255,0.25)",
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: "0.1em", textTransform: "uppercase",
-            marginBottom: 12,
-          }}>
-            ORDER DETAILS
-          </div>
+        <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)", padding: 18, marginBottom: 20 }}>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>ORDER DETAILS</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 24px" }}>
-            {[
-              ["Scene/Pose", order.scenepose],
-              ["Listing", order.listing],
-              ["Description", order.description],
-              ["Extras", order.extras],
-              ["Message", order.message || "—"],
-              ["Orientation", order.orientation],
-            ].map(([label, val]) => (
+            {[["Scene/Pose", order.scenepose], ["Listing", order.listing], ["Description", order.description], ["Extras", order.extras], ["Message", order.message || "\u2014"], ["Orientation", order.orientation]].map(([label, val]) => (
               <div key={label}>
-                <div style={{
-                  fontSize: 9, color: "rgba(255,255,255,0.2)",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.06em", textTransform: "uppercase",
-                  marginBottom: 3,
-                }}>
-                  {label}
-                </div>
-                <div style={{
-                  fontSize: 12, color: "rgba(255,255,255,0.6)",
-                  fontFamily: "'Outfit', sans-serif", lineHeight: 1.4,
-                }}>
-                  {val || "—"}
-                </div>
+                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.4 }}>{val || "\u2014"}</div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Extracted Traits */}
       {order.traits && (
         <div style={{ marginBottom: 20 }}>
-          <button
-            onClick={() => setShowTraits(!showTraits)}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              display: "flex", alignItems: "center", gap: 6, padding: 0,
-              color: "rgba(255,255,255,0.35)",
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
-              letterSpacing: "0.1em", textTransform: "uppercase",
-            }}
-          >
+          <button onClick={() => setShowTraits(!showTraits)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, padding: 0, color: "rgba(255,255,255,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase" }}>
             {showTraits ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
             EXTRACTED TRAITS (GPT VISION)
           </button>
           {showTraits && (
-            <div style={{
-              marginTop: 10, background: "rgba(59,130,246,0.05)",
-              border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10,
-              padding: 14,
-            }}>
+            <div style={{ marginTop: 10, background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10, padding: 14 }}>
               {Object.entries(order.traits).map(([k, v]) => (
-                <div key={k} style={{
-                  display: "flex", gap: 12, marginBottom: 6,
-                  fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-                }}>
+                <div key={k} style={{ display: "flex", gap: 12, marginBottom: 6, fontSize: 11, fontFamily: "'JetBrains Mono', monospace" }}>
                   <span style={{ color: "rgba(59,130,246,0.6)", minWidth: 70, textTransform: "capitalize" }}>{k}:</span>
                   <span style={{ color: "rgba(255,255,255,0.5)" }}>{String(v)}</span>
                 </div>
@@ -530,145 +381,62 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
         </div>
       )}
 
-      {/* Generated Prompt */}
       {order.prompt && (
         <div style={{ marginBottom: 24 }}>
-          <button
-            onClick={() => setShowPrompt(!showPrompt)}
-            style={{
-              background: "none", border: "none", cursor: "pointer",
-              display: "flex", alignItems: "center", gap: 6, padding: 0,
-              color: "rgba(255,255,255,0.35)",
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
-              letterSpacing: "0.1em", textTransform: "uppercase",
-            }}
-          >
+          <button onClick={() => setShowPrompt(!showPrompt)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, padding: 0, color: "rgba(255,255,255,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase" }}>
             {showPrompt ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
             GENERATED PROMPT
           </button>
           {showPrompt && (
-            <div style={{
-              marginTop: 10, background: "rgba(168,85,247,0.05)",
-              border: "1px solid rgba(168,85,247,0.1)", borderRadius: 10,
-              padding: 14, fontSize: 11, lineHeight: 1.6,
-              color: "rgba(255,255,255,0.5)",
-              fontFamily: "'JetBrains Mono', monospace",
-              wordBreak: "break-word",
-            }}>
+            <div style={{ marginTop: 10, background: "rgba(168,85,247,0.05)", border: "1px solid rgba(168,85,247,0.1)", borderRadius: 10, padding: 14, fontSize: 11, lineHeight: 1.6, color: "rgba(255,255,255,0.5)", fontFamily: "'JetBrains Mono', monospace", wordBreak: "break-word" }}>
               {order.prompt}
             </div>
           )}
         </div>
       )}
 
-      {/* Comments */}
       {order.comments.length > 0 && (
         <div style={{ marginBottom: 20 }}>
-          <div style={{
-            fontSize: 10, color: "rgba(255,255,255,0.25)",
-            fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: "0.1em", textTransform: "uppercase",
-            marginBottom: 10,
-          }}>
-            REVISION NOTES
-          </div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>REVISION NOTES</div>
           {order.comments.map((c, i) => (
-            <div key={i} style={{
-              background: "rgba(255,255,255,0.03)", borderRadius: 10,
-              padding: 12, marginBottom: 8,
-              borderLeft: "2px solid rgba(168,85,247,0.4)",
-            }}>
-              <div style={{
-                fontSize: 12, color: "rgba(255,255,255,0.6)",
-                fontFamily: "'Outfit', sans-serif", lineHeight: 1.5,
-                marginBottom: 6,
-              }}>
-                {c.text}
-              </div>
-              <div style={{
-                fontSize: 9, color: "rgba(255,255,255,0.2)",
-                fontFamily: "'JetBrains Mono', monospace",
-              }}>
-                {c.author} · {new Date(c.time).toLocaleString()}
-              </div>
+            <div key={i} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: 12, marginBottom: 8, borderLeft: "2px solid rgba(168,85,247,0.4)" }}>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.5, marginBottom: 6 }}>{c.text}</div>
+              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace" }}>{c.author} &middot; {new Date(c.time).toLocaleString()}</div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Action bar */}
       {canApprove && (
-        <div style={{
-          background: "rgba(255,255,255,0.02)", borderRadius: 14,
-          border: "1px solid rgba(255,255,255,0.06)", padding: 18,
-        }}>
-          {/* Comment input */}
-          <div style={{
-            display: "flex", gap: 8, marginBottom: 14,
-          }}>
+        <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: 18 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
             <input
               value={comment}
               onChange={e => setComment(e.target.value)}
               placeholder="Add revision notes..."
-              style={{
-                flex: 1, background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 8, padding: "10px 14px",
-                color: "rgba(255,255,255,0.8)",
-                fontFamily: "'Outfit', sans-serif", fontSize: 13,
-                outline: "none",
-              }}
-              onFocus={e => e.target.style.borderColor = "rgba(168,85,247,0.3)"}
-              onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"}
+              style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 14px", color: "rgba(255,255,255,0.8)", fontFamily: "'Outfit', sans-serif", fontSize: 13, outline: "none" }}
+              onFocus={e => { e.target.style.borderColor = "rgba(168,85,247,0.3)"; }}
+              onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; }}
             />
             <button
-              onClick={() => {
-                if (comment.trim()) {
-                  onRevise(order.id, comment);
-                  setComment("");
-                }
-              }}
-              style={{
-                background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)",
-                borderRadius: 8, padding: "10px 16px", cursor: "pointer",
-                color: "#EF4444", display: "flex", alignItems: "center", gap: 6,
-                fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600,
-                letterSpacing: "0.03em", whiteSpace: "nowrap",
-                opacity: comment.trim() ? 1 : 0.4,
-              }}
+              onClick={() => { if (comment.trim()) { onRevise(order.id, comment); setComment(""); } }}
+              style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 16px", cursor: "pointer", color: "#EF4444", display: "flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: "0.03em", whiteSpace: "nowrap", opacity: comment.trim() ? 1 : 0.4 }}
             >
               <Send size={13} /> REVISE
             </button>
           </div>
-
-          {/* Action buttons */}
           <div style={{ display: "flex", gap: 10 }}>
             <button
               onClick={() => onApprove(order.id)}
-              style={{
-                flex: 1, background: "linear-gradient(135deg, #10B981, #059669)",
-                border: "none", borderRadius: 10, padding: "12px 20px",
-                color: "white", cursor: "pointer",
-                fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600,
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                letterSpacing: "0.02em",
-                boxShadow: "0 4px 15px rgba(16,185,129,0.25)",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
-              onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+              style={{ flex: 1, background: "linear-gradient(135deg, #10B981, #059669)", border: "none", borderRadius: 10, padding: "12px 20px", color: "white", cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: "0.02em", boxShadow: "0 4px 15px rgba(16,185,129,0.25)", transition: "all 0.2s" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <Check size={16} /> Approve & Send to Customer
+              <Check size={16} /> Approve &amp; Send to Customer
             </button>
             <button
               onClick={() => onRerun(order.id)}
-              style={{
-                background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
-                borderRadius: 10, padding: "12px 16px", cursor: "pointer",
-                color: "#3B82F6", display: "flex", alignItems: "center", gap: 6,
-                fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600,
-                letterSpacing: "0.03em",
-              }}
+              style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "12px 16px", cursor: "pointer", color: "#3B82F6", display: "flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: "0.03em" }}
             >
               <RotateCcw size={14} /> RE-RUN
             </button>
@@ -687,8 +455,6 @@ function getTimeAgo(dateStr) {
   if (hrs < 24) return `${hrs}h ago`;
   return `${Math.floor(hrs / 24)}d ago`;
 }
-
-// ── Main Dashboard ─────────────────────────────────────────────────
 
 export default function ManifestoDashboard() {
   const [orders, setOrders] = useState(MOCK_ORDERS);
@@ -713,7 +479,7 @@ export default function ManifestoDashboard() {
   }, {});
 
   const handleApprove = (id) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "approved", comments: [...o.comments, { text: "Approved — sending to customer.", time: new Date().toISOString(), author: "Clifton" }] } : o));
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "approved", comments: [...o.comments, { text: "Approved \u2014 sending to customer.", time: new Date().toISOString(), author: "Clifton" }] } : o));
   };
 
   const handleRevise = (id, text) => {
@@ -728,77 +494,24 @@ export default function ManifestoDashboard() {
   };
 
   return (
-    <div style={{
-      width: "100%", height: "100vh",
-      background: "#0A0B0F",
-      color: "rgba(255,255,255,0.8)",
-      display: "flex", flexDirection: "column",
-      fontFamily: "'Outfit', sans-serif",
-      overflow: "hidden",
-      opacity: loaded ? 1 : 0,
-      transition: "opacity 0.6s ease",
-    }}>
+    <div style={{ width: "100%", height: "100vh", background: "#0A0B0F", color: "rgba(255,255,255,0.8)", display: "flex", flexDirection: "column", fontFamily: "'Outfit', sans-serif", overflow: "hidden", opacity: loaded ? 1 : 0, transition: "opacity 0.6s ease" }}>
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-      {/* ── Top Bar ── */}
-      <div style={{
-        padding: "16px 28px", display: "flex", alignItems: "center",
-        justifyContent: "space-between",
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
-        background: "rgba(255,255,255,0.01)",
-        flexShrink: 0,
-      }}>
+      <div style={{ padding: "16px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.01)", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: "linear-gradient(135deg, #A855F7, #3B82F6)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontFamily: "'Outfit', sans-serif", fontWeight: 800,
-            fontSize: 14, color: "white",
-          }}>
-            M
-          </div>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #A855F7, #3B82F6)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 14, color: "white" }}>M</div>
           <div>
-            <div style={{
-              fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em",
-              color: "rgba(255,255,255,0.9)",
-            }}>
-              Manifesto Pieces
-            </div>
-            <div style={{
-              fontSize: 9, color: "rgba(255,255,255,0.25)",
-              fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: "0.08em", textTransform: "uppercase",
-            }}>
-              ORDER COMMAND CENTER
-            </div>
+            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em", color: "rgba(255,255,255,0.9)" }}>Manifesto Pieces</div>
+            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}>ORDER COMMAND CENTER</div>
           </div>
         </div>
-
-        {/* Status summary chips */}
         <div style={{ display: "flex", gap: 6 }}>
           {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
             const count = statusCounts[key] || 0;
             if (count === 0) return null;
             return (
-              <button
-                key={key}
-                onClick={() => setFilterStatus(filterStatus === key ? "all" : key)}
-                style={{
-                  background: filterStatus === key ? cfg.bg : "rgba(255,255,255,0.02)",
-                  border: filterStatus === key ? `1px solid ${cfg.color}40` : "1px solid rgba(255,255,255,0.05)",
-                  borderRadius: 8, padding: "5px 10px", cursor: "pointer",
-                  display: "flex", alignItems: "center", gap: 5,
-                  color: filterStatus === key ? cfg.color : "rgba(255,255,255,0.3)",
-                  fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600,
-                  transition: "all 0.2s",
-                }}
-              >
-                <span style={{
-                  width: 6, height: 6, borderRadius: "50%",
-                  background: cfg.color,
-                  opacity: filterStatus === key ? 1 : 0.4,
-                }} />
+              <button key={key} onClick={() => setFilterStatus(filterStatus === key ? "all" : key)} style={{ background: filterStatus === key ? cfg.bg : "rgba(255,255,255,0.02)", border: filterStatus === key ? `1px solid ${cfg.color}40` : "1px solid rgba(255,255,255,0.05)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, color: filterStatus === key ? cfg.color : "rgba(255,255,255,0.3)", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600, transition: "all 0.2s" }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.color, opacity: filterStatus === key ? 1 : 0.4 }} />
                 {count}
               </button>
             );
@@ -806,64 +519,21 @@ export default function ManifestoDashboard() {
         </div>
       </div>
 
-      {/* ── Main Content ── */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        {/* ── Order List ── */}
-        <div style={{
-          width: 420, flexShrink: 0, overflowY: "auto",
-          padding: "16px 16px",
-          borderRight: "1px solid rgba(255,255,255,0.04)",
-        }}>
-          {/* Search */}
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8,
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: 10, padding: "8px 12px", marginBottom: 14,
-          }}>
+        <div style={{ width: 420, flexShrink: 0, overflowY: "auto", padding: "16px 16px", borderRight: "1px solid rgba(255,255,255,0.04)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 12px", marginBottom: 14 }}>
             <Search size={14} style={{ opacity: 0.25 }} />
-            <input
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search orders..."
-              style={{
-                background: "none", border: "none", outline: "none",
-                color: "rgba(255,255,255,0.7)",
-                fontFamily: "'Outfit', sans-serif", fontSize: 13,
-                flex: 1,
-              }}
-            />
+            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search orders..." style={{ background: "none", border: "none", outline: "none", color: "rgba(255,255,255,0.7)", fontFamily: "'Outfit', sans-serif", fontSize: 13, flex: 1 }} />
           </div>
-
-          {/* Order cards */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {filteredOrders.map((order, i) => (
-              <div
-                key={order.id}
-                style={{
-                  opacity: loaded ? 1 : 0,
-                  transform: loaded ? "translateY(0)" : "translateY(12px)",
-                  transition: `all 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.06}s`,
-                }}
-              >
-                <OrderCard
-                  order={order}
-                  isSelected={selectedId === order.id}
-                  onSelect={setSelectedId}
-                />
+              <div key={order.id} style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(12px)", transition: `all 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.06}s` }}>
+                <OrderCard order={order} isSelected={selectedId === order.id} onSelect={setSelectedId} />
               </div>
             ))}
           </div>
         </div>
-
-        {/* ── Detail Panel ── */}
-        <DetailPanel
-          order={selectedOrder}
-          onClose={() => setSelectedId(null)}
-          onApprove={handleApprove}
-          onRevise={handleRevise}
-          onRerun={handleRerun}
-        />
+        <DetailPanel order={selectedOrder} onClose={() => setSelectedId(null)} onApprove={handleApprove} onRevise={handleRevise} onRerun={handleRerun} />
       </div>
     </div>
   );

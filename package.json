@@ -1,25 +1,12 @@
 {
-  "name": "manifesto_puzzles_dashobard",
+  "name": "manifesto-puzzles-dashboard",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cbask28025/manifesto_puzzles_dashobard.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/cbask28025/manifesto_puzzles_dashobard/issues"
-  },
-  "homepage": "https://github.com/cbask28025/manifesto_puzzles_dashobard#readme",
   "dependencies": {
     "lucide-react": "^1.8.0",
     "next": "^16.2.4",
