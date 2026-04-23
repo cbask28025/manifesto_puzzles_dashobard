@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect, useRef } from "react";
 import { Eye, Check, MessageSquare, RotateCcw, ChevronDown, ChevronRight, X, Send, Clock, AlertTriangle, CheckCircle, Package, Image, Zap, ArrowRight, Filter, Search } from "lucide-react";
 
