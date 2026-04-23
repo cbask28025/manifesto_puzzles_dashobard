@@ -183,8 +183,9 @@ function CategoryTag({ category }) {
 function ImageSlot({ src, label, size = 140 }) {
   const [hovered, setHovered] = useState(false);
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, maxWidth: size }}>
       <div
+        onClick={() => { if (src) window.open(src, '_blank'); }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
@@ -195,7 +196,7 @@ function ImageSlot({ src, label, size = 140 }) {
           transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
           transform: hovered && src ? "scale(1.03)" : "scale(1)",
           boxShadow: hovered && src ? "0 8px 30px rgba(0,0,0,0.4)" : "none",
-          cursor: src ? "zoom-in" : "default",
+          cursor: src ? "pointer" : "default",
         }}
       >
         {src ? (
@@ -210,6 +211,17 @@ function ImageSlot({ src, label, size = 140 }) {
             <span style={{ fontSize: 9, opacity: 0.2, fontFamily: "'JetBrains Mono', monospace" }}>PENDING</span>
           </div>
         )}
+        {hovered && src && (
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0,
+            background: "rgba(0,0,0,0.7)", padding: "4px 6px",
+            fontSize: 8, color: "rgba(255,255,255,0.6)",
+            fontFamily: "'JetBrains Mono', monospace",
+            textAlign: "center",
+          }}>
+            Click to inspect
+          </div>
+        )}
       </div>
       <span style={{
         fontSize: 9, color: "rgba(255,255,255,0.35)",
@@ -218,6 +230,23 @@ function ImageSlot({ src, label, size = 140 }) {
       }}>
         {label}
       </span>
+      {src && (
+        <span
+          onClick={() => { navigator.clipboard.writeText(src); }}
+          style={{
+            fontSize: 7, color: "rgba(255,255,255,0.15)",
+            fontFamily: "'JetBrains Mono', monospace",
+            wordBreak: "break-all", textAlign: "center",
+            lineHeight: 1.3, cursor: "pointer",
+            maxWidth: size, overflow: "hidden",
+            display: "-webkit-box", WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+          }}
+          title="Click to copy URL"
+        >
+          {src}
+        </span>
+      )}
     </div>
   );
 }
