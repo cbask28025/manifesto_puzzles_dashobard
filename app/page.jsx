@@ -1,137 +1,15 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { Eye, Check, MessageSquare, RotateCcw, ChevronDown, ChevronRight, X, Send, Clock, AlertTriangle, CheckCircle, Package, Image, Zap, ArrowRight, Filter, Search } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Eye, Check, MessageSquare, RotateCcw, ChevronDown, ChevronRight, X, Send, Clock, AlertTriangle, CheckCircle, Package, Image, Zap, ArrowRight, Search, RefreshCw, Trash2 } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
 
-// ── Mock Data ──────────────────────────────────────────────────────
-const MOCK_ORDERS = [
-  {
-    id: "MP-4821",
-    name: "Jessica Torres",
-    category: "Graduation",
-    artStyle: "Watercolor Dream",
-    status: "review",
-    createdAt: "2026-04-21T09:14:00Z",
-    orientation: "Landscape",
-    listing: "Graduation Puzzle",
-    scenepose: "Cap toss celebration",
-    description: "Outdoor ceremony, cherry blossoms, golden hour lighting",
-    extras: "Add confetti falling from the sky",
-    message: "Class of 2026!",
-    formSubmitted: true,
-    referencePhoto: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&h=300&fit=crop&crop=face",
-    aiGenerated: "https://images.unsplash.com/photo-1523050854058-8df90110c476?w=300&h=300&fit=crop",
-    artApplied: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=300&h=300&fit=crop",
-    traits: { skin: "Medium olive", hair: "Dark brown, wavy, shoulder-length", glasses: false, facial: "Round face, prominent cheekbones" },
-    prompt: "Hyper-realistic graduation portrait, young woman with medium olive skin, dark brown wavy shoulder-length hair, round face with prominent cheekbones, wearing navy cap and gown, tossing cap in celebration, outdoor ceremony with cherry blossom trees, golden hour backlighting, confetti particles, text overlay 'Class of 2026', watercolor dream artistic filter --ar 3:2 --v 6.1",
-    comments: [],
-  },
-  {
-    id: "MP-4822",
-    name: "Marcus Johnson",
-    category: "Superhero",
-    artStyle: "Cinematic Realism",
-    status: "processing",
-    createdAt: "2026-04-21T10:32:00Z",
-    orientation: "Portrait",
-    listing: "Superhero Puzzle",
-    scenepose: "Rooftop hero stance",
-    description: "Flying hero with energy powers, neon city skyline at night",
-    extras: "Lightning crackling from hands",
-    message: "",
-    formSubmitted: true,
-    referencePhoto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
-    aiGenerated: null,
-    artApplied: null,
-    traits: { skin: "Dark brown", hair: "Short fade, black", glasses: false, facial: "Strong jawline, short beard" },
-    prompt: "Generating...",
-    comments: [],
-  },
-  {
-    id: "MP-4823",
-    name: "Aiko Yamamoto",
-    category: "Wedding",
-    artStyle: "Soft Renaissance",
-    status: "approved",
-    createdAt: "2026-04-20T16:45:00Z",
-    orientation: "Portrait",
-    listing: "Wedding Puzzle",
-    scenepose: "First dance",
-    description: "Elegant ballroom, chandelier lighting, romantic atmosphere",
-    extras: "Rose petals on the floor",
-    message: "Forever & Always",
-    formSubmitted: true,
-    referencePhoto: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&h=300&fit=crop&crop=face",
-    aiGenerated: "https://images.unsplash.com/photo-1519741497674-611481863552?w=300&h=300&fit=crop",
-    artApplied: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=300&h=300&fit=crop",
-    traits: { skin: "Light", hair: "Black, straight, long", glasses: false, facial: "Oval face, soft features" },
-    prompt: "Hyper-realistic wedding portrait, young woman with light skin, long straight black hair, oval face with soft features, elegant white gown, first dance pose in grand ballroom, crystal chandeliers, warm amber lighting, rose petals scattered on marble floor, text 'Forever & Always', soft renaissance painting style --ar 2:3 --v 6.1",
-    comments: [{ text: "Perfect likeness. Approved!", time: "2026-04-20T18:30:00Z", author: "Clifton" }],
-  },
-  {
-    id: "MP-4824",
-    name: "DeShawn Williams",
-    category: "Sports",
-    artStyle: "Action Freeze",
-    status: "revision",
-    createdAt: "2026-04-20T14:20:00Z",
-    orientation: "Landscape",
-    listing: "Sports Puzzle",
-    scenepose: "Mid-dunk slam",
-    description: "Basketball court, sold out arena, spotlight on player",
-    extras: "Flames trailing the ball",
-    message: "",
-    formSubmitted: true,
-    referencePhoto: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&h=300&fit=crop&crop=face",
-    aiGenerated: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=300&h=300&fit=crop",
-    artApplied: "https://images.unsplash.com/photo-1547153760-18fc86c3a880?w=300&h=300&fit=crop",
-    traits: { skin: "Dark brown", hair: "Locs, medium length", glasses: false, facial: "Angular face, high cheekbones" },
-    prompt: "Hyper-realistic basketball action shot, athletic man with dark brown skin, medium-length locs, angular face with high cheekbones, mid-dunk pose, sold-out arena with dramatic spotlight, flames trailing basketball, action freeze style --ar 3:2 --v 6.1",
-    comments: [{ text: "Face doesn't match reference — needs another likeness pass. Also darken the arena background more.", time: "2026-04-20T17:10:00Z", author: "Clifton" }],
-  },
-  {
-    id: "MP-4825",
-    name: "Sarah Mitchell",
-    category: "Graduation",
-    artStyle: "",
-    status: "awaiting_form",
-    createdAt: "2026-04-21T11:05:00Z",
-    orientation: "",
-    listing: "Graduation Puzzle",
-    scenepose: "",
-    description: "",
-    extras: "",
-    message: "",
-    formSubmitted: false,
-    referencePhoto: null,
-    aiGenerated: null,
-    artApplied: null,
-    traits: null,
-    prompt: "",
-    comments: [],
-  },
-  {
-    id: "MP-4826",
-    name: "Kevin Park",
-    category: "Superhero",
-    artStyle: "Comic Ink",
-    status: "queued",
-    createdAt: "2026-04-21T08:50:00Z",
-    orientation: "Portrait",
-    listing: "Superhero Puzzle",
-    scenepose: "Shield block stance",
-    description: "Armored hero blocking energy blast in ruined cityscape",
-    extras: "Sparks flying off the shield",
-    message: "Unstoppable",
-    formSubmitted: true,
-    referencePhoto: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=300&h=300&fit=crop&crop=face",
-    aiGenerated: null,
-    artApplied: null,
-    traits: null,
-    prompt: "",
-    comments: [],
-  },
-];
+// ── Supabase Client ────────────────────────────────────────────────
+const supabase = createClient(
+  "https://eulbuwqbabkhloobuasa.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1bGJ1d3FiYWJraGxvb2J1YXNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDE0NjMsImV4cCI6MjA5MjQ3NzQ2M30.-6WM8hEcl9OaJ6faL3jl9Fx-q0U1fX1ekSzBN8L_aMA"
+);
 
+// ── Status Config ──────────────────────────────────────────────────
 const STATUS_CONFIG = {
   awaiting_form: { label: "Awaiting Form", color: "#F59E0B", bg: "rgba(245,158,11,0.1)", icon: Clock },
   queued: { label: "Queued", color: "#8B8FA3", bg: "rgba(139,143,163,0.08)", icon: Package },
@@ -148,8 +26,51 @@ const CATEGORY_COLORS = {
   Sports: "#3B82F6",
 };
 
+// ── Helpers ────────────────────────────────────────────────────────
+function getTimeAgo(dateStr) {
+  if (!dateStr) return "";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
+function mapOrder(row) {
+  return {
+    id: row.order_number || row.id,
+    dbId: row.id,
+    name: row.customer_name || "Unknown",
+    email: row.customer_email || "",
+    category: row.category || "",
+    artStyle: row.art_style || "",
+    status: row.status || "queued",
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    orientation: row.orientation || "",
+    listing: row.etsy_listing_name || "",
+    scenepose: row.scene_pose || "",
+    description: row.description || "",
+    extras: row.extras || "",
+    message: row.puzzle_message || "",
+    buildChoice: row.build_choice || "",
+    formSubmitted: row.form_submitted || false,
+    referencePhoto: row.reference_photo_url || null,
+    finalImage: row.ai_generated_url || row.art_applied_url || null,
+    traits: row.extracted_traits || null,
+    prompt: row.generated_prompt || "",
+    summary: row.summary || "",
+    revisionNote: row.customer_revision_note || "",
+    revisionCount: row.revision_count || 0,
+    customerApproved: row.customer_approved || false,
+    internalApproved: row.internal_approved || false,
+  };
+}
+
+// ── Components ─────────────────────────────────────────────────────
 function StatusBadge({ status }) {
-  const cfg = STATUS_CONFIG[status];
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.queued;
   const Icon = cfg.icon;
   return (
     <span style={{
@@ -185,7 +106,7 @@ function ImageSlot({ src, label, size = 140 }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, maxWidth: size }}>
       <div
-        onClick={() => { if (src) window.open(src, '_blank'); }}
+        onClick={() => { if (src) window.open(src, "_blank"); }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
@@ -219,7 +140,7 @@ function ImageSlot({ src, label, size = 140 }) {
             fontFamily: "'JetBrains Mono', monospace",
             textAlign: "center",
           }}>
-            Click to inspect
+            Click to view full size
           </div>
         )}
       </div>
@@ -230,23 +151,6 @@ function ImageSlot({ src, label, size = 140 }) {
       }}>
         {label}
       </span>
-      {src && (
-        <span
-          onClick={() => { navigator.clipboard.writeText(src); }}
-          style={{
-            fontSize: 7, color: "rgba(255,255,255,0.15)",
-            fontFamily: "'JetBrains Mono', monospace",
-            wordBreak: "break-all", textAlign: "center",
-            lineHeight: 1.3, cursor: "pointer",
-            maxWidth: size, overflow: "hidden",
-            display: "-webkit-box", WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-          }}
-          title="Click to copy URL"
-        >
-          {src}
-        </span>
-      )}
     </div>
   );
 }
@@ -287,6 +191,7 @@ function OrderCard({ order, onSelect, isSelected }) {
         </div>
         <StatusBadge status={order.status} />
       </div>
+
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
         <CategoryTag category={order.category} />
         {order.artStyle && (
@@ -295,20 +200,21 @@ function OrderCard({ order, onSelect, isSelected }) {
           </span>
         )}
       </div>
+
+      {/* Two-image preview: Reference → Final */}
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <ImageSlot src={order.referencePhoto} label="Reference" size={64} />
+        <ImageSlot src={order.referencePhoto} label="Reference" size={72} />
         <ArrowRight size={12} style={{ opacity: 0.15, flexShrink: 0 }} />
-        <ImageSlot src={order.aiGenerated} label="AI Gen" size={64} />
-        <ArrowRight size={12} style={{ opacity: 0.15, flexShrink: 0 }} />
-        <ImageSlot src={order.artApplied} label="Final" size={64} />
+        <ImageSlot src={order.finalImage} label="Final" size={72} />
       </div>
+
       <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace" }}>
           {timeAgo}
         </span>
-        {order.comments.length > 0 && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "'JetBrains Mono', monospace" }}>
-            <MessageSquare size={11} /> {order.comments.length}
+        {order.revisionCount > 0 && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, color: "rgba(239,68,68,0.6)", fontFamily: "'JetBrains Mono', monospace" }}>
+            <RotateCcw size={10} /> {order.revisionCount} revision{order.revisionCount > 1 ? "s" : ""}
           </span>
         )}
       </div>
@@ -316,10 +222,12 @@ function OrderCard({ order, onSelect, isSelected }) {
   );
 }
 
-function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
+function DetailPanel({ order, onClose, onApprove, onRevise, onRerun, onDelete }) {
   const [comment, setComment] = useState("");
   const [showPrompt, setShowPrompt] = useState(false);
   const [showTraits, setShowTraits] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [actionLoading, setActionLoading] = useState(null);
 
   if (!order) return (
     <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.15)", fontFamily: "'Outfit', sans-serif", fontSize: 15 }}>
@@ -329,8 +237,29 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
 
   const canApprove = order.status === "review" || order.status === "revision";
 
+  const handleApprove = async () => {
+    setActionLoading("approve");
+    await onApprove(order.dbId);
+    setActionLoading(null);
+  };
+
+  const handleRevise = async () => {
+    if (!comment.trim()) return;
+    setActionLoading("revise");
+    await onRevise(order.dbId, comment);
+    setComment("");
+    setActionLoading(null);
+  };
+
+  const handleRerun = async () => {
+    setActionLoading("rerun");
+    await onRerun(order.dbId);
+    setActionLoading(null);
+  };
+
   return (
     <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px", background: "rgba(255,255,255,0.01)", borderLeft: "1px solid rgba(255,255,255,0.05)" }}>
+      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
@@ -340,48 +269,82 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
           <h2 style={{ fontFamily: "'Outfit', sans-serif", fontSize: 26, fontWeight: 700, color: "rgba(255,255,255,0.95)", margin: 0, letterSpacing: "-0.02em" }}>
             {order.name}
           </h2>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "'JetBrains Mono', monospace", marginTop: 4 }}>
+            {order.email}
+          </div>
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <CategoryTag category={order.category} />
             {order.artStyle && <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "'JetBrains Mono', monospace" }}>{order.artStyle}</span>}
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace" }}>{order.orientation}</span>
+            {order.orientation && <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace" }}>{order.orientation}</span>}
           </div>
         </div>
-        <button onClick={onClose} style={{ background: "rgba(255,255,255,0.05)", border: "none", borderRadius: 8, padding: 8, cursor: "pointer", color: "rgba(255,255,255,0.4)" }}>
-          <X size={16} />
-        </button>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => onDelete(order.dbId)} title="Delete order" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)", borderRadius: 8, padding: 8, cursor: "pointer", color: "rgba(239,68,68,0.5)", transition: "all 0.2s" }}
+            onMouseEnter={e => { e.currentTarget.style.color = "#EF4444"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; }}
+            onMouseLeave={e => { e.currentTarget.style.color = "rgba(239,68,68,0.5)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.15)"; }}
+          >
+            <Trash2 size={14} />
+          </button>
+          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.05)", border: "none", borderRadius: 8, padding: 8, cursor: "pointer", color: "rgba(255,255,255,0.4)" }}>
+            <X size={16} />
+          </button>
+        </div>
       </div>
 
+      {/* Awaiting Form State */}
       {!order.formSubmitted && (
         <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 12, padding: 20, marginBottom: 24, display: "flex", alignItems: "center", gap: 14 }}>
           <Clock size={22} style={{ color: "#F59E0B", flexShrink: 0 }} />
           <div>
             <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 600, color: "#F59E0B", fontSize: 14, marginBottom: 4 }}>Tally Form Not Submitted</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "'JetBrains Mono', monospace" }}>Customer purchased but hasn&apos;t submitted their customization form yet.</div>
-            <button style={{ marginTop: 10, background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 8, padding: "6px 14px", color: "#F59E0B", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, cursor: "pointer", letterSpacing: "0.03em" }}>
-              SEND FORM REMINDER
-            </button>
           </div>
         </div>
       )}
 
+      {/* Two-Image Pipeline: Reference → Final */}
       {order.formSubmitted && (
         <div style={{ marginBottom: 28 }}>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>IMAGE PIPELINE</div>
-          <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <ImageSlot src={order.referencePhoto} label="Customer Reference" size={180} />
-            <div style={{ display: "flex", alignItems: "center", paddingTop: 75 }}><ArrowRight size={16} style={{ opacity: 0.2 }} /></div>
-            <ImageSlot src={order.aiGenerated} label="AI Recreation" size={180} />
-            <div style={{ display: "flex", alignItems: "center", paddingTop: 75 }}><ArrowRight size={16} style={{ opacity: 0.2 }} /></div>
-            <ImageSlot src={order.artApplied} label="Art Style Applied" size={180} />
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 14 }}>IMAGE COMPARISON</div>
+          <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+            <ImageSlot src={order.referencePhoto} label="Customer Reference" size={220} />
+            <div style={{ display: "flex", alignItems: "center", paddingTop: 95 }}>
+              <ArrowRight size={20} style={{ opacity: 0.2 }} />
+            </div>
+            <ImageSlot src={order.finalImage} label="Final Output" size={220} />
           </div>
         </div>
       )}
 
+      {/* Summary */}
+      {order.summary && (
+        <div style={{ marginBottom: 20 }}>
+          <button onClick={() => setShowSummary(!showSummary)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, padding: 0, color: "rgba(255,255,255,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            {showSummary ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+            AI SUMMARY
+          </button>
+          {showSummary && (
+            <div style={{ marginTop: 10, background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.1)", borderRadius: 10, padding: 14, fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.6)", fontFamily: "'Outfit', sans-serif" }}>
+              {order.summary}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Order Details */}
       {order.formSubmitted && (
         <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)", padding: 18, marginBottom: 20 }}>
           <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 12 }}>ORDER DETAILS</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 24px" }}>
-            {[["Scene/Pose", order.scenepose], ["Listing", order.listing], ["Description", order.description], ["Extras", order.extras], ["Message", order.message || "\u2014"], ["Orientation", order.orientation]].map(([label, val]) => (
+            {[
+              ["Scene/Pose", order.scenepose],
+              ["Listing", order.listing],
+              ["Description", order.description],
+              ["Extras", order.extras],
+              ["Message", order.message || "\u2014"],
+              ["Orientation", order.orientation],
+              ["Build Choice", order.buildChoice || "\u2014"],
+            ].map(([label, val]) => (
               <div key={label}>
                 <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 3 }}>{label}</div>
                 <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.4 }}>{val || "\u2014"}</div>
@@ -391,6 +354,7 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
         </div>
       )}
 
+      {/* Extracted Traits */}
       {order.traits && (
         <div style={{ marginBottom: 20 }}>
           <button onClick={() => setShowTraits(!showTraits)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, padding: 0, color: "rgba(255,255,255,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -399,17 +363,20 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
           </button>
           {showTraits && (
             <div style={{ marginTop: 10, background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.1)", borderRadius: 10, padding: 14 }}>
-              {Object.entries(order.traits).map(([k, v]) => (
+              {typeof order.traits === "object" ? Object.entries(order.traits).map(([k, v]) => (
                 <div key={k} style={{ display: "flex", gap: 12, marginBottom: 6, fontSize: 11, fontFamily: "'JetBrains Mono', monospace" }}>
                   <span style={{ color: "rgba(59,130,246,0.6)", minWidth: 70, textTransform: "capitalize" }}>{k}:</span>
                   <span style={{ color: "rgba(255,255,255,0.5)" }}>{String(v)}</span>
                 </div>
-              ))}
+              )) : (
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontFamily: "'JetBrains Mono', monospace" }}>{String(order.traits)}</div>
+              )}
             </div>
           )}
         </div>
       )}
 
+      {/* Generated Prompt */}
       {order.prompt && (
         <div style={{ marginBottom: 24 }}>
           <button onClick={() => setShowPrompt(!showPrompt)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, padding: 0, color: "rgba(255,255,255,0.35)", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -424,18 +391,17 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
         </div>
       )}
 
-      {order.comments.length > 0 && (
+      {/* Revision Notes */}
+      {order.revisionNote && (
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>REVISION NOTES</div>
-          {order.comments.map((c, i) => (
-            <div key={i} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: 12, marginBottom: 8, borderLeft: "2px solid rgba(168,85,247,0.4)" }}>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.5, marginBottom: 6 }}>{c.text}</div>
-              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace" }}>{c.author} &middot; {new Date(c.time).toLocaleString()}</div>
-            </div>
-          ))}
+          <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: 12, borderLeft: "2px solid rgba(239,68,68,0.4)" }}>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontFamily: "'Outfit', sans-serif", lineHeight: 1.5 }}>{order.revisionNote}</div>
+          </div>
         </div>
       )}
 
+      {/* Action Panel */}
       {canApprove && (
         <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: 18 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
@@ -446,28 +412,32 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
               style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 14px", color: "rgba(255,255,255,0.8)", fontFamily: "'Outfit', sans-serif", fontSize: 13, outline: "none" }}
               onFocus={e => { e.target.style.borderColor = "rgba(168,85,247,0.3)"; }}
               onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; }}
+              onKeyDown={e => { if (e.key === "Enter" && comment.trim()) handleRevise(); }}
             />
             <button
-              onClick={() => { if (comment.trim()) { onRevise(order.id, comment); setComment(""); } }}
-              style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 16px", cursor: "pointer", color: "#EF4444", display: "flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: "0.03em", whiteSpace: "nowrap", opacity: comment.trim() ? 1 : 0.4 }}
+              onClick={handleRevise}
+              disabled={actionLoading === "revise"}
+              style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 16px", cursor: comment.trim() ? "pointer" : "default", color: "#EF4444", display: "flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: "0.03em", whiteSpace: "nowrap", opacity: comment.trim() ? 1 : 0.4 }}
             >
-              <Send size={13} /> REVISE
+              <Send size={13} /> {actionLoading === "revise" ? "..." : "REVISE"}
             </button>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
             <button
-              onClick={() => onApprove(order.id)}
+              onClick={handleApprove}
+              disabled={actionLoading === "approve"}
               style={{ flex: 1, background: "linear-gradient(135deg, #10B981, #059669)", border: "none", borderRadius: 10, padding: "12px 20px", color: "white", cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: "0.02em", boxShadow: "0 4px 15px rgba(16,185,129,0.25)", transition: "all 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <Check size={16} /> Approve &amp; Send to Customer
+              <Check size={16} /> {actionLoading === "approve" ? "Approving..." : "Approve & Send to Customer"}
             </button>
             <button
-              onClick={() => onRerun(order.id)}
+              onClick={handleRerun}
+              disabled={actionLoading === "rerun"}
               style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "12px 16px", cursor: "pointer", color: "#3B82F6", display: "flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: "0.03em" }}
             >
-              <RotateCcw size={14} /> RE-RUN
+              <RotateCcw size={14} /> {actionLoading === "rerun" ? "..." : "RE-RUN"}
             </button>
           </div>
         </div>
@@ -476,23 +446,57 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun }) {
   );
 }
 
-function getTimeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
-
+// ── Main Dashboard ─────────────────────────────────────────────────
 export default function ManifestoDashboard() {
-  const [orders, setOrders] = useState(MOCK_ORDERS);
+  const [orders, setOrders] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [lastRefresh, setLastRefresh] = useState(null);
 
-  useEffect(() => { setTimeout(() => setLoaded(true), 100); }, []);
+  // Fetch orders from Supabase
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data, error: fetchError } = await supabase
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (fetchError) throw fetchError;
+      setOrders((data || []).map(mapOrder));
+      setLastRefresh(new Date());
+      setError(null);
+    } catch (err) {
+      console.error("Failed to fetch orders:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial load + real-time subscription
+  useEffect(() => {
+    fetchOrders().then(() => setTimeout(() => setLoaded(true), 100));
+
+    const channel = supabase
+      .channel("orders-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
+        fetchOrders();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchOrders]);
+
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
+  }, [fetchOrders]);
 
   const selectedOrder = orders.find(o => o.id === selectedId);
 
@@ -507,62 +511,147 @@ export default function ManifestoDashboard() {
     return acc;
   }, {});
 
-  const handleApprove = (id) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "approved", comments: [...o.comments, { text: "Approved \u2014 sending to customer.", time: new Date().toISOString(), author: "Clifton" }] } : o));
+  // ── Actions ────────────────────────────────────────────────────
+  const handleApprove = async (dbId) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        status: "approved",
+        internal_approved: true,
+        internal_approved_at: new Date().toISOString(),
+      })
+      .eq("id", dbId);
+
+    if (error) { console.error("Approve failed:", error); alert("Failed to approve: " + error.message); }
+    else await fetchOrders();
   };
 
-  const handleRevise = (id, text) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "revision", comments: [...o.comments, { text, time: new Date().toISOString(), author: "Clifton" }] } : o));
+  const handleRevise = async (dbId, note) => {
+    const order = orders.find(o => o.dbId === dbId);
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        status: "revision",
+        customer_revision_note: note,
+        revision_count: (order?.revisionCount || 0) + 1,
+      })
+      .eq("id", dbId);
+
+    if (error) { console.error("Revise failed:", error); alert("Failed to revise: " + error.message); }
+    else await fetchOrders();
   };
 
-  const handleRerun = (id) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "processing", aiGenerated: null, artApplied: null } : o));
-    setTimeout(() => {
-      setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "review", aiGenerated: "https://images.unsplash.com/photo-1523050854058-8df90110c476?w=300&h=300&fit=crop", artApplied: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=300&h=300&fit=crop" } : o));
-    }, 3000);
+  const handleRerun = async (dbId) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        status: "processing",
+        ai_generated_url: null,
+        art_applied_url: null,
+      })
+      .eq("id", dbId);
+
+    if (error) { console.error("Rerun failed:", error); alert("Failed to re-run: " + error.message); }
+    else await fetchOrders();
+  };
+
+  const handleDelete = async (dbId) => {
+    if (!window.confirm("Delete this order? This cannot be undone.")) return;
+    const { error } = await supabase.from("orders").delete().eq("id", dbId);
+    if (error) { console.error("Delete failed:", error); alert("Failed to delete: " + error.message); }
+    else {
+      setSelectedId(null);
+      await fetchOrders();
+    }
   };
 
   return (
     <div style={{ width: "100%", height: "100vh", background: "#0A0B0F", color: "rgba(255,255,255,0.8)", display: "flex", flexDirection: "column", fontFamily: "'Outfit', sans-serif", overflow: "hidden", opacity: loaded ? 1 : 0, transition: "opacity 0.6s ease" }}>
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+      {/* Header */}
       <div style={{ padding: "16px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.01)", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #A855F7, #3B82F6)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 14, color: "white" }}>M</div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.02em", color: "rgba(255,255,255,0.9)" }}>Manifesto Pieces</div>
-            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}>ORDER COMMAND CENTER</div>
+            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              ORDER COMMAND CENTER
+              {lastRefresh && <span style={{ marginLeft: 8, opacity: 0.5 }}>updated {getTimeAgo(lastRefresh.toISOString())}</span>}
+            </div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 6 }}>
-          {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
-            const count = statusCounts[key] || 0;
-            if (count === 0) return null;
-            return (
-              <button key={key} onClick={() => setFilterStatus(filterStatus === key ? "all" : key)} style={{ background: filterStatus === key ? cfg.bg : "rgba(255,255,255,0.02)", border: filterStatus === key ? `1px solid ${cfg.color}40` : "1px solid rgba(255,255,255,0.05)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, color: filterStatus === key ? cfg.color : "rgba(255,255,255,0.3)", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600, transition: "all 0.2s" }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.color, opacity: filterStatus === key ? 1 : 0.4 }} />
-                {count}
-              </button>
-            );
-          })}
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button onClick={fetchOrders} title="Refresh" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 10px", cursor: "pointer", color: "rgba(255,255,255,0.4)", display: "flex", alignItems: "center", gap: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+          >
+            <RefreshCw size={12} /> REFRESH
+          </button>
+
+          <div style={{ display: "flex", gap: 6 }}>
+            {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
+              const count = statusCounts[key] || 0;
+              if (count === 0) return null;
+              return (
+                <button key={key} onClick={() => setFilterStatus(filterStatus === key ? "all" : key)} style={{ background: filterStatus === key ? cfg.bg : "rgba(255,255,255,0.02)", border: filterStatus === key ? `1px solid ${cfg.color}40` : "1px solid rgba(255,255,255,0.05)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, color: filterStatus === key ? cfg.color : "rgba(255,255,255,0.3)", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 600, transition: "all 0.2s" }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.color, opacity: filterStatus === key ? 1 : 0.4 }} />
+                  {count}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div style={{ padding: "8px 28px", background: "rgba(239,68,68,0.08)", borderBottom: "1px solid rgba(239,68,68,0.15)", fontSize: 12, color: "#EF4444", fontFamily: "'JetBrains Mono', monospace", display: "flex", alignItems: "center", gap: 8 }}>
+          <AlertTriangle size={14} /> Connection error: {error}
+          <button onClick={fetchOrders} style={{ background: "rgba(239,68,68,0.15)", border: "none", borderRadius: 4, padding: "2px 8px", color: "#EF4444", cursor: "pointer", fontFamily: "'JetBrains Mono', monospace", fontSize: 10, marginLeft: 8 }}>RETRY</button>
+        </div>
+      )}
+
+      {/* Main Content */}
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        <div style={{ width: 420, flexShrink: 0, overflowY: "auto", padding: "16px 16px", borderRight: "1px solid rgba(255,255,255,0.04)" }}>
+        {/* Order List */}
+        <div style={{ width: 400, flexShrink: 0, overflowY: "auto", padding: "16px 16px", borderRight: "1px solid rgba(255,255,255,0.04)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "8px 12px", marginBottom: 14 }}>
             <Search size={14} style={{ opacity: 0.25 }} />
             <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search orders..." style={{ background: "none", border: "none", outline: "none", color: "rgba(255,255,255,0.7)", fontFamily: "'Outfit', sans-serif", fontSize: 13, flex: 1 }} />
           </div>
+
+          {loading && orders.length === 0 && (
+            <div style={{ textAlign: "center", padding: 40, color: "rgba(255,255,255,0.2)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>
+              Loading orders...
+            </div>
+          )}
+
+          {!loading && filteredOrders.length === 0 && (
+            <div style={{ textAlign: "center", padding: 40, color: "rgba(255,255,255,0.15)", fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>
+              {orders.length === 0 ? "No orders yet" : "No orders match filter"}
+            </div>
+          )}
+
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {filteredOrders.map((order, i) => (
-              <div key={order.id} style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(12px)", transition: `all 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.06}s` }}>
+              <div key={order.dbId} style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(12px)", transition: `all 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.06}s` }}>
                 <OrderCard order={order} isSelected={selectedId === order.id} onSelect={setSelectedId} />
               </div>
             ))}
           </div>
         </div>
-        <DetailPanel order={selectedOrder} onClose={() => setSelectedId(null)} onApprove={handleApprove} onRevise={handleRevise} onRerun={handleRerun} />
+
+        {/* Detail Panel */}
+        <DetailPanel
+          order={selectedOrder}
+          onClose={() => setSelectedId(null)}
+          onApprove={handleApprove}
+          onRevise={handleRevise}
+          onRerun={handleRerun}
+          onDelete={handleDelete}
+        />
       </div>
     </div>
   );
