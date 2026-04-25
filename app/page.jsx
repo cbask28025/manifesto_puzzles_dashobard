@@ -16,7 +16,9 @@ const STATUS_CONFIG = {
   processing: { label: "Processing", color: "#3B82F6", bg: "rgba(59,130,246,0.1)", icon: Zap },
   review: { label: "Ready for Review", color: "#A855F7", bg: "rgba(168,85,247,0.12)", icon: Eye },
   revision: { label: "Needs Revision", color: "#EF4444", bg: "rgba(239,68,68,0.1)", icon: AlertTriangle },
+  sent_to_customer: { label: "Sent to Customer", color: "#F97316", bg: "rgba(249,115,22,0.1)", icon: Send },
   approved: { label: "Approved", color: "#10B981", bg: "rgba(16,185,129,0.1)", icon: CheckCircle },
+  completed: { label: "Completed", color: "#6B7280", bg: "rgba(107,114,128,0.1)", icon: CheckCircle },
 };
 
 const CATEGORY_COLORS = {
@@ -222,7 +224,7 @@ function OrderCard({ order, onSelect, isSelected }) {
   );
 }
 
-function DetailPanel({ order, onClose, onApprove, onRevise, onRerun, onDelete }) {
+function DetailPanel({ order, onClose, onApprove, onRevise, onRerun, onDelete, onCloseOut }) {
   const [comment, setComment] = useState("");
   const [showPrompt, setShowPrompt] = useState(false);
   const [showTraits, setShowTraits] = useState(false);
@@ -235,11 +237,19 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun, onDelete })
     </div>
   );
 
-  const canApprove = order.status === "review" || order.status === "revision";
+  const canAction = order.status === "review" || order.status === "revision";
+  const canSendToCustomer = order.status === "review" || order.status === "revision";
+  const canCloseOut = order.status === "sent_to_customer" || order.status === "approved";
 
   const handleApprove = async () => {
     setActionLoading("approve");
     await onApprove(order.dbId);
+    setActionLoading(null);
+  };
+
+  const handleCloseOut = async () => {
+    setActionLoading("closeout");
+    await onCloseOut(order.dbId);
     setActionLoading(null);
   };
 
@@ -401,8 +411,8 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun, onDelete })
         </div>
       )}
 
-      {/* Action Panel */}
-      {canApprove && (
+      {/* Action Panel - Review/Revision */}
+      {canSendToCustomer && (
         <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: 18 }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
             <input
@@ -426,11 +436,11 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun, onDelete })
             <button
               onClick={handleApprove}
               disabled={actionLoading === "approve"}
-              style={{ flex: 1, background: "linear-gradient(135deg, #10B981, #059669)", border: "none", borderRadius: 10, padding: "12px 20px", color: "white", cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: "0.02em", boxShadow: "0 4px 15px rgba(16,185,129,0.25)", transition: "all 0.2s" }}
+              style={{ flex: 1, background: "linear-gradient(135deg, #F97316, #EA580C)", border: "none", borderRadius: 10, padding: "12px 20px", color: "white", cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: "0.02em", boxShadow: "0 4px 15px rgba(249,115,22,0.25)", transition: "all 0.2s" }}
               onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <Check size={16} /> {actionLoading === "approve" ? "Approving..." : "Approve & Send to Customer"}
+              <Send size={16} /> {actionLoading === "approve" ? "Sending..." : "Send to Customer"}
             </button>
             <button
               onClick={handleRerun}
@@ -440,6 +450,38 @@ function DetailPanel({ order, onClose, onApprove, onRevise, onRerun, onDelete })
               <RotateCcw size={14} /> {actionLoading === "rerun" ? "..." : "RE-RUN"}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Action Panel - Close Out */}
+      {canCloseOut && (
+        <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: 18 }}>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              onClick={handleCloseOut}
+              disabled={actionLoading === "closeout"}
+              style={{ flex: 1, background: "linear-gradient(135deg, #10B981, #059669)", border: "none", borderRadius: 10, padding: "12px 20px", color: "white", cursor: "pointer", fontFamily: "'Outfit', sans-serif", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, letterSpacing: "0.02em", boxShadow: "0 4px 15px rgba(16,185,129,0.25)", transition: "all 0.2s" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <CheckCircle size={16} /> {actionLoading === "closeout" ? "Closing..." : "Close Out Order"}
+            </button>
+            <button
+              onClick={handleRevise}
+              disabled={!comment.trim() || actionLoading === "revise"}
+              style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 10, padding: "12px 16px", cursor: comment.trim() ? "pointer" : "default", color: "#EF4444", display: "flex", alignItems: "center", gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 600, letterSpacing: "0.03em", opacity: comment.trim() ? 1 : 0.4 }}
+            >
+              <RotateCcw size={14} /> {actionLoading === "revise" ? "..." : "REVISE"}
+            </button>
+          </div>
+          <input
+            value={comment}
+            onChange={e => setComment(e.target.value)}
+            placeholder="Add revision notes if needed..."
+            style={{ width: "100%", marginTop: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 14px", color: "rgba(255,255,255,0.8)", fontFamily: "'Outfit', sans-serif", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+            onFocus={e => { e.target.style.borderColor = "rgba(168,85,247,0.3)"; }}
+            onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; }}
+          />
         </div>
       )}
     </div>
@@ -562,6 +604,16 @@ export default function ManifestoDashboard() {
     if (success) await fetchOrders();
   };
 
+  const handleCloseOut = async (dbId) => {
+    if (!window.confirm("Close out this order? This marks it as completed.")) return;
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: "completed", updated_at: new Date().toISOString() })
+      .eq("id", dbId);
+    if (error) { console.error("Close out failed:", error); alert("Failed to close out: " + error.message); }
+    else await fetchOrders();
+  };
+
   const handleDelete = async (dbId) => {
     if (!window.confirm("Delete this order? This cannot be undone.")) return;
     const { error } = await supabase.from("orders").delete().eq("id", dbId);
@@ -658,6 +710,7 @@ export default function ManifestoDashboard() {
           onRevise={handleRevise}
           onRerun={handleRerun}
           onDelete={handleDelete}
+          onCloseOut={handleCloseOut}
         />
       </div>
     </div>
