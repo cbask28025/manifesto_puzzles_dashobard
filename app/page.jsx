@@ -511,48 +511,55 @@ export default function ManifestoDashboard() {
     return acc;
   }, {});
 
-  // ── Actions ────────────────────────────────────────────────────
-  const handleApprove = async (dbId) => {
-    const { error } = await supabase
-      .from("orders")
-      .update({
-        status: "approved",
-        internal_approved: true,
-        internal_approved_at: new Date().toISOString(),
-      })
-      .eq("id", dbId);
+  // ── Actions (via n8n webhook) ────────────────────────────────
+  const WEBHOOK_URL = "https://cbask28025.app.n8n.cloud/webhook/091de8f0-8322-404c-984f-4cc6dea449ff";
 
-    if (error) { console.error("Approve failed:", error); alert("Failed to approve: " + error.message); }
-    else await fetchOrders();
+  const callWebhook = async (payload) => {
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`Webhook returned ${res.status}`);
+      return true;
+    } catch (err) {
+      console.error("Webhook failed:", err);
+      alert("Action failed: " + err.message);
+      return false;
+    }
+  };
+
+  const handleApprove = async (dbId) => {
+    const order = orders.find(o => o.dbId === dbId);
+    const success = await callWebhook({
+      action: "approve",
+      order_id: dbId,
+      order_number: order?.id || "",
+    });
+    if (success) await fetchOrders();
   };
 
   const handleRevise = async (dbId, note) => {
     const order = orders.find(o => o.dbId === dbId);
-    const { error } = await supabase
-      .from("orders")
-      .update({
-        status: "revision",
-        customer_revision_note: note,
-        revision_count: (order?.revisionCount || 0) + 1,
-      })
-      .eq("id", dbId);
-
-    if (error) { console.error("Revise failed:", error); alert("Failed to revise: " + error.message); }
-    else await fetchOrders();
+    const success = await callWebhook({
+      action: "revise",
+      order_id: dbId,
+      order_number: order?.id || "",
+      notes: note,
+    });
+    if (success) await fetchOrders();
   };
 
   const handleRerun = async (dbId) => {
-    const { error } = await supabase
-      .from("orders")
-      .update({
-        status: "processing",
-        ai_generated_url: null,
-        art_applied_url: null,
-      })
-      .eq("id", dbId);
-
-    if (error) { console.error("Rerun failed:", error); alert("Failed to re-run: " + error.message); }
-    else await fetchOrders();
+    const order = orders.find(o => o.dbId === dbId);
+    const success = await callWebhook({
+      action: "rerun",
+      order_id: dbId,
+      order_number: order?.id || "",
+      notes: "",
+    });
+    if (success) await fetchOrders();
   };
 
   const handleDelete = async (dbId) => {
