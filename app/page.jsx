@@ -512,7 +512,7 @@ export default function ManifestoDashboard() {
   }, {});
 
   // ── Actions (via n8n webhook) ────────────────────────────────
-  const WEBHOOK_URL = "https://cbask28025.app.n8n.cloud/webhook/091de8f0-8322-404c-984f-4cc6dea449ff";
+  const WEBHOOK_URL = "/api/webhook";
 
   const callWebhook = async (payload) => {
     try {
