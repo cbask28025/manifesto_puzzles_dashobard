@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { Eye, Check, MessageSquare, RotateCcw, ChevronDown, ChevronRight, X, Send, Clock, AlertTriangle, CheckCircle, Package, Image, Zap, ArrowRight, Search, RefreshCw, Trash2 } from "lucide-react";
+import { Eye, Check, MessageSquare, RotateCcw, ChevronDown, ChevronRight, X, Send, Clock, AlertTriangle, CheckCircle, Package, Image, Zap, ArrowRight, Search, RefreshCw, Trash2, FileText } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
 // ── Supabase Client ────────────────────────────────────────────────
@@ -642,6 +642,13 @@ export default function ManifestoDashboard() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <a href="/run-log" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 10px", cursor: "pointer", color: "rgba(255,255,255,0.4)", display: "flex", alignItems: "center", gap: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, textDecoration: "none" }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+          >
+            <FileText size={12} /> RUN LOG
+          </a>
+
           <button onClick={fetchOrders} title="Refresh" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 10px", cursor: "pointer", color: "rgba(255,255,255,0.4)", display: "flex", alignItems: "center", gap: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
